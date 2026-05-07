@@ -3,12 +3,25 @@
 -- Called nightly AFTER schools_raw has been loaded.
 -- Produces stg.schools_flat — clean, decoded staging source for SCD2.
 --
--- Key fix (2026-04 testing):
---   Admin unit resolution uses a smart COALESCE that checks each level
---   against dw.admin_units_dim. This handles cases where parish_id in
---   public.schools uses a legacy numbering system that doesn't exist in
---   the new administrative_units schema. Falls back through:
---   parish → sub_county → county → district → region → admin_unit_id
+-- Admin unit resolution (updated 2026-05):
+--   Returns dw.admin_units_dim.id directly (not source_id).
+--   Falls back through the hierarchy from most to least granular:
+--     parish → sub_county → county → district → admin_unit_id
+--
+--   IMPORTANT: region_id and local_government_id fallbacks have been
+--   intentionally removed. These are too coarse — a single region/LG
+--   source_id can match multiple admin_units_dim nodes, causing thousands
+--   of schools to land on the wrong Parish/Ward node. Schools that cannot
+--   resolve below district level will correctly land on their District node
+--   or be NULL (unresolved), which is detectable and fixable.
+--
+-- FIX (2026-05): Previously the COALESCE returned sr.parish_id (a source_id
+--   integer), which was then re-joined in 02_scd2_schools_dim.sql via
+--   aud.source_id = stg_s.admin_unit_id. When source_ids are non-unique
+--   across levels (e.g. region_id=25 matches many nodes), the JOIN picked
+--   an arbitrary admin_units_dim row, causing massive misassignment of
+--   schools to wrong districts (BUSHENYI, IBANDA inflation).
+--   Now returns aud.id directly — unambiguous surrogate key join downstream.
 -- =============================================================================
 
 BEGIN;
@@ -40,18 +53,45 @@ SELECT
     sr.id::INT                                          AS source_id,
     sr.name,
 
-    -- Smart COALESCE: use the most granular admin unit level that actually
-    -- exists in dw.admin_units_dim. Handles legacy parish IDs that don't
-    -- exist in the new administrative_units schema.
+    -- Smart COALESCE: resolve to dw.admin_units_dim.id at the most granular
+    -- level available. Returns the surrogate key (id) directly — NOT source_id.
+    -- This eliminates ambiguous source_id → multiple nodes mismatches.
+    --
+    -- Fallback chain (most → least granular):
+    --   1. parish_id       → Parish or Ward level
+    --   2. sub_county_id   → Sub County or Town Council level
+    --   3. county_id       → County or Municipality level
+    --   4. district_id     → District level
+    --   5. admin_unit_id   → Whatever the source system's generic field holds
+    --
+    -- NOTE: region_id and local_government_id removed intentionally —
+    -- too broad, causes cross-district school misassignment.
     COALESCE(
-        CASE WHEN EXISTS (SELECT 1 FROM dw.admin_units_dim a WHERE a.source_id = sr.parish_id           AND a.current_status = TRUE) THEN sr.parish_id           END,
-        CASE WHEN EXISTS (SELECT 1 FROM dw.admin_units_dim a WHERE a.source_id = sr.sub_county_id       AND a.current_status = TRUE) THEN sr.sub_county_id       END,
-        CASE WHEN EXISTS (SELECT 1 FROM dw.admin_units_dim a WHERE a.source_id = sr.county_id           AND a.current_status = TRUE) THEN sr.county_id           END,
-        CASE WHEN EXISTS (SELECT 1 FROM dw.admin_units_dim a WHERE a.source_id = sr.district_id         AND a.current_status = TRUE) THEN sr.district_id         END,
-        CASE WHEN EXISTS (SELECT 1 FROM dw.admin_units_dim a WHERE a.source_id = sr.region_id           AND a.current_status = TRUE) THEN sr.region_id           END,
-        CASE WHEN EXISTS (SELECT 1 FROM dw.admin_units_dim a WHERE a.source_id = sr.admin_unit_id       AND a.current_status = TRUE) THEN sr.admin_unit_id       END,
-        CASE WHEN EXISTS (SELECT 1 FROM dw.admin_units_dim a WHERE a.source_id = sr.local_government_id AND a.current_status = TRUE) THEN sr.local_government_id END
-    )::INT                                              AS admin_unit_id,
+        (SELECT a.id FROM dw.admin_units_dim a
+         WHERE a.source_id = sr.parish_id
+           AND a.current_status = TRUE
+         ORDER BY a.id LIMIT 1),
+
+        (SELECT a.id FROM dw.admin_units_dim a
+         WHERE a.source_id = sr.sub_county_id
+           AND a.current_status = TRUE
+         ORDER BY a.id LIMIT 1),
+
+        (SELECT a.id FROM dw.admin_units_dim a
+         WHERE a.source_id = sr.county_id
+           AND a.current_status = TRUE
+         ORDER BY a.id LIMIT 1),
+
+        (SELECT a.id FROM dw.admin_units_dim a
+         WHERE a.source_id = sr.district_id
+           AND a.current_status = TRUE
+         ORDER BY a.id LIMIT 1),
+
+        (SELECT a.id FROM dw.admin_units_dim a
+         WHERE a.source_id = sr.admin_unit_id
+           AND a.current_status = TRUE
+         ORDER BY a.id LIMIT 1)
+    )                                                   AS admin_unit_id,
 
     sr.emis_number,
 

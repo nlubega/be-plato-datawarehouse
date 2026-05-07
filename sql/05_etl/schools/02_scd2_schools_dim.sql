@@ -3,11 +3,19 @@
 -- Called nightly AFTER 01_flatten_schools.sql.
 -- Implements full SCD Type 2 with change_hash, changed_fields, change_reason.
 --
--- FIX: Added ON CONFLICT (emis_number) DO UPDATE to handle cases where
--- two source records share the same EMIS number (data quality issue in EMIS).
--- Without this, the INSERT fails when the unique constraint on emis_number
--- is violated even though the WHERE NOT EXISTS check passed (because it
--- checks source_id, not emis_number).
+-- FIX (2026-05): admin_unit_id JOIN changed from source_id to id.
+--   Previously:  JOIN dw.admin_units_dim aud ON aud.source_id = stg_s.admin_unit_id
+--   Now:         JOIN dw.admin_units_dim aud ON aud.id         = stg_s.admin_unit_id
+--
+--   This is required because 01_flatten_schools.sql now stores
+--   dw.admin_units_dim.id (surrogate key) in stg.schools_flat.admin_unit_id,
+--   not source_id. Joining on source_id was ambiguous when multiple
+--   admin_units_dim rows shared the same source_id (duplicate nodes),
+--   causing arbitrary node selection and massive cross-district school
+--   misassignment (BUSHENYI/IBANDA inflation in Top 15 Districts report).
+--
+-- FIX (prior): Added ON CONFLICT (emis_number) DO UPDATE to handle cases
+--   where two source records share the same EMIS number (data quality issue).
 -- =============================================================================
 
 BEGIN;
@@ -21,7 +29,7 @@ SET
     is_current      = FALSE
 FROM stg.schools_flat stg_s
 JOIN dw.admin_units_dim aud
-    ON aud.source_id      = stg_s.admin_unit_id
+    ON aud.id             = stg_s.admin_unit_id   -- FIX: id not source_id
    AND aud.current_status = TRUE
 WHERE
     dw_s.source_id   = stg_s.source_id
@@ -123,7 +131,7 @@ SELECT
 FROM stg.schools_flat stg_s
 
 JOIN dw.admin_units_dim aud
-    ON aud.source_id      = stg_s.admin_unit_id
+    ON aud.id             = stg_s.admin_unit_id   -- FIX: id not source_id
    AND aud.current_status = TRUE
 
 LEFT JOIN dw.schools_dim dw_old
