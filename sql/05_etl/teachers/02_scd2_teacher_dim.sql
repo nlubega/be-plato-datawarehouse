@@ -73,7 +73,7 @@ WHERE dim.source_id   = stg.person_id
   AND dim.is_current  = TRUE
   AND dim.change_hash <> stg.change_hash;
 
-GET DIAGNOSTICS;
+
 DO $$ DECLARE v BIGINT;
 BEGIN
     SELECT COUNT(*) INTO v FROM dw.teacher_dim WHERE is_current = FALSE;
