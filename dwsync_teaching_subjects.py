@@ -26,11 +26,9 @@ LOCAL_DB = {
 }
 
 TEACHING_SUBJECTS_ETL_SCRIPTS = [
-    "sql/05_etl/teaching_subjects/00_extract_teaching_subjects_raw.sql",
-    "sql/05_etl/teaching_subjects/01_flatten_teaching_subjects.sql",
-    "sql/05_etl/teaching_subjects/02_scd2_teaching_subjects_dim.sql",
-    "sql/05_etl/teaching_subjects/03_load_teaching_subjects_fact.sql",
-    "sql/05_etl/teaching_subjects/04_dq_checks_teaching_subjects.sql",
+    "sql/05_etl/teaching_subjects/00_extract_subjects.sql",
+    "sql/05_etl/teaching_subjects/01_load_teaching_subject_facts.sql",
+    "sql/05_etl/teaching_subjects/02_dq_checks_teaching_subjects.sql",
 ]
 
 
