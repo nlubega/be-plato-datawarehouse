@@ -170,23 +170,23 @@ GROUP BY district_id, district_name, school_level, academic_year
 ON CONFLICT (district_id, school_level, academic_year, gender) DO NOTHING;
 
 
--- ── Step 1d: Join population denominators ────────────────────────────────────
+-- ── Step 1d: Join population denominators ──────────────────────────────────
 UPDATE stg.enrolment_indicator_raw eir
 SET
     school_age_population = CASE
-        WHEN eir.school_level ILIKE '%PRE%PRIMARY%'             THEN pr.pop_age_3_5
+        WHEN eir.school_level ILIKE '%PRE%PRIMARY%'             THEN pf.pop_age_3_5
         WHEN eir.school_level ILIKE '%PRIMARY%'
-             AND NOT eir.school_level ILIKE '%PRE%'             THEN pr.pop_age_6_12
-        WHEN eir.school_level ILIKE '%SECONDARY%'               THEN pr.pop_age_13_16 + pr.pop_age_17_18
+             AND NOT eir.school_level ILIKE '%PRE%'             THEN pf.pop_age_6_12
+        WHEN eir.school_level ILIKE '%SECONDARY%'               THEN pf.pop_age_13_16 + pf.pop_age_17_18
         ELSE NULL
     END,
-    population_age_6 = pr.pop_age_6
-FROM stg.population_raw pr,
+    population_age_6 = pf.pop_age_6
+FROM dw.population_fact pf,
      dw.admin_units_dim au
-WHERE au.id                 = eir.district_id
-  AND pr.district_source_id = au.source_id
-  AND pr.year               = eir.academic_year
-  AND UPPER(pr.sex) = CASE
+WHERE au.id          = eir.district_id
+  AND pf.district_id = au.id
+  AND pf.year        = eir.academic_year
+  AND UPPER(pf.sex) = CASE
         WHEN UPPER(eir.gender) IN ('M','MALE')   THEN 'M'
         WHEN UPPER(eir.gender) IN ('F','FEMALE') THEN 'F'
         ELSE 'TOTAL'
