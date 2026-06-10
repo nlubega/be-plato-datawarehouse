@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>EMIS Data Warehouse — Overview</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f0f4f9;
+      color: #1a1a2e;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      background: linear-gradient(135deg, #1B3A6B 0%, #2E5DA6 100%);
+      padding: 36px 48px 32px;
+    }
+    .header-eyebrow {
+      color: #a8c8f0;
+      font-size: 11px;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+    .header-logo {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 10px;
+    }
+    .header-logo img {
+      height: 48px;
+      width: auto;
+    }
+    .header-title {
+      color: #ffffff;
+      font-size: 30px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+    .header-subtitle {
+      color: #a8c8f0;
+      font-size: 14px;
+      font-weight: 400;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .header-subtitle span::before {
+      content: '|';
+      margin-right: 10px;
+      opacity: 0.4;
+    }
+    .header-subtitle span:first-child::before { content: ''; margin: 0; }
+
+    /* ── INTRO ── */
+    .intro {
+      background: #ffffff;
+      border-left: 4px solid #2E5DA6;
+      margin: 28px 48px 0;
+      padding: 18px 22px;
+      border-radius: 0 4px 4px 0;
+      font-size: 14px;
+      color: #404040;
+      line-height: 1.75;
+    }
+    .intro strong { color: #1B3A6B; }
+
+    /* ── SECTION LABEL ── */
+    .section-label {
+      margin: 32px 48px 16px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #7a8db0;
+    }
+
+    /* ── GRID ── */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin: 0 48px;
+    }
+
+    /* ── CARD ── */
+    .card {
+      background: #ffffff;
+      border: 1px solid #d0dff0;
+      border-radius: 8px;
+      padding: 22px 20px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      transition: box-shadow 0.18s ease, transform 0.18s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: #2E5DA6;
+    }
+    .card:nth-child(even)::before { background: #1B3A6B; }
+    .card:hover {
+      box-shadow: 0 4px 20px rgba(46, 93, 166, 0.12);
+      transform: translateY(-2px);
+    }
+    .card-icon { font-size: 22px; line-height: 1; }
+    .card-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #1B3A6B;
+    }
+    .card-desc {
+      font-size: 12px;
+      color: #606060;
+      line-height: 1.65;
+      flex: 1;
+    }
+    .card-link {
+      display: inline-block;
+      margin-top: 10px;
+      background: #2E5DA6;
+      color: #ffffff;
+      padding: 8px 16px;
+      border-radius: 4px;
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      align-self: flex-start;
+      transition: background 0.15s ease;
+    }
+    .card-link:hover { background: #1B3A6B; }
+
+    /* ── FOOTER ── */
+    .footer {
+      margin: 32px 48px 28px;
+      background: #f4f7fb;
+      padding: 14px 20px;
+      border-radius: 4px;
+      font-size: 11px;
+      color: #808080;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .footer strong { color: #2E5DA6; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .header { padding: 24px 20px; }
+      .intro, .section-label, .grid, .footer { margin-left: 20px; margin-right: 20px; }
+      .grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 580px) {
+      .grid { grid-template-columns: 1fr; }
+      .header-title { font-size: 22px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-eyebrow">Republic of Uganda — Ministry of Education and Sports</div>
+    <div class="header-logo">
+      <div class="header-title">EMIS Data Warehouse</div>
+    </div>
+    <div class="header-subtitle">
+      <span>Integrated Education Analytics Platform</span>
+      <span>Powered by EMIS 2.0</span>
+      <span>Updated Nightly</span>
+    </div>
+  </div>
+
+  <!-- INTRO -->
+  <div class="intro">
+    The EMIS Data Warehouse integrates data from Uganda's Education Management Information System (EMIS 2.0)
+    into a unified analytical platform covering <strong>9 dashboards</strong> across education data marts,
+    examination results, and district validation data. Select a dashboard below to explore.
+  </div>
+
+  <!-- ROW 1 -->
+  <div class="section-label">Schools &amp; Enrolment</div>
+  <div class="grid">
+    <div class="card">
+      <div class="card-icon">🏫</div>
+      <div class="card-title">Schools</div>
+      <div class="card-desc">90,690 schools by district, funding type, sex composition, boarding status and founding body.</div>
+      <a class="card-link" href="https://dw.emis4africa.com/superset/dashboard/21/" target="_blank" rel="noopener">Open Dashboard →</a>
+    </div>
+    <div class="card">
+      <div class="card-icon">👩‍🎓</div>
+      <div class="card-title">Enrolments</div>
+      <div class="card-desc">5.5 million learner enrolment records by district, grade, gender and academic year.</div>
+      <a class="card-link" href="https://dw.emis4africa.com/superset/dashboard/22/" target="_blank" rel="noopener">Open Dashboard →</a>
+    </div>
+    <div class="card">
+      <div class="card-icon">👨‍🏫</div>
+      <div class="card-title">Teachers</div>
+      <div class="card-desc">272,219 teachers by school, district, qualification, gender and payroll status.</div>
+      <a class="card-link" href="https://dw.emis4africa.com/superset/dashboard/26/" target="_blank" rel="noopener">Open Dashboard →</a>
+    </div>
+  </div>
+
+  <!-- ROW 2 -->
+  <div class="section-label">Staff &amp; Indicators</div>
+  <div class="grid">
+    <div class="card">
+      <div class="card-icon">👷</div>
+      <div class="card-title">Non-Teaching Staff</div>
+      <div class="card-desc">53,693 non-teaching staff by school, role, category and employment status.</div>
+      <a class="card-link" href="https://dw.emis4africa.com/superset/dashboard/27/" target="_blank" rel="noopener">Open Dashboard →</a>
+    </div>
+    <div class="card">
+      <div class="card-icon">📊</div>
+      <div class="card-title">Education Indicators</div>
+      <div class="card-desc">GER, NER, GIR, PTR and Gender Parity Index by district and school level. UNESCO standard.</div>
+      <a class="card-link" href="https://dw.emis4africa.com/superset/dashboard/28/" target="_blank" rel="noopener">Open Dashboard →</a>
+    </div>
+    <div class="card">
+      <div class="card-icon">📚</div>
+      <div class="card-title">Teaching Subjects</div>
+      <div class="card-desc">118,506 teacher-subject assignments. Science vs arts balance and subject coverage by school.</div>
+      <a class="card-link" href="https://dw.emis4africa.com/superset/dashboard/29/" target="_blank" rel="noopener">Open Dashboard →</a>
+    </div>
+  </div>
+
+  <!-- ROW 3 -->
+  <div class="section-label">Infrastructure &amp; Examinations</div>
+  <div class="grid">
+    <div class="card">
+      <div class="card-icon">🏗️</div>
+      <div class="card-title">School Infrastructure</div>
+      <div class="card-desc">96,913 infrastructure records. Classrooms, latrines and labs by school, condition and district.</div>
+      <a class="card-link" href="https://dw.emis4africa.com/superset/dashboard/30/" target="_blank" rel="noopener">Open Dashboard →</a>
+    </div>
+    <div class="card">
+      <div class="card-icon">🎓</div>
+      <div class="card-title">UNEB PLE 2024</div>
+      <div class="card-desc">Primary Leaving Examination 2024 performance by district, funding type, gender and division.</div>
+      <a class="card-link" href="https://dw.emis4africa.com/superset/dashboard/18/" target="_blank" rel="noopener">Open Dashboard →</a>
+    </div>
+    <div class="card">
+      <div class="card-icon">✅</div>
+      <div class="card-title">DEO Validation 2025</div>
+      <div class="card-desc">District Education Officer validation data for 2025. School and enrolment data quality review.</div>
+      <a class="card-link" href="https://dw.emis4africa.com/superset/dashboard/14/" target="_blank" rel="noopener">Open Dashboard →</a>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <span>Ministry of Education and Sports (MoES) &nbsp;|&nbsp; Education Management Information System</span>
+    <span>Data refreshed nightly from EMIS 2.0 &nbsp;|&nbsp; <strong>CONFIDENTIAL — Internal Use Only</strong></span>
+  </div>
+
+</body>
+</html>
